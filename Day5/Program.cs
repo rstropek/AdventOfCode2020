@@ -16,7 +16,7 @@ public static class Solution
 
     public static int SolvePuzzle1(string[] lines) => GetIDs(lines).Max();
 
-    public static long SolvePuzzle2(string[] lines)
+    public static int SolvePuzzle2(string[] lines)
     {
         var ids = GetIDs(lines).ToArray();
         return Enumerable.Range(ids.Min(), ids.Length).Single(val => !ids.Any(id => id == val));

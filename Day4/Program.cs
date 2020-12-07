@@ -21,7 +21,7 @@ public static class Solution
                     .Select(p => KeyValuePair.Create(p[0], p[1]))))
         .Count(r => requiredProperties.All(m => r.ContainsKey(m)));
 
-    public static long SolvePuzzle2(string data)
+    public static int SolvePuzzle2(string data)
     {
         var hclRegex = new Regex("^#[0-9a-f]{6}$");
         var pidRegex = new Regex("^[0-9]{9}$");
