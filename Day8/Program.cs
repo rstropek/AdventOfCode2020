@@ -19,11 +19,11 @@ public static class Solution
 
     private static (int acc, bool loop) Run(Op[] ops)
     {
-        var visited = new List<int>();
+        var visited = new bool[ops.Length];
         int line = 0, acc = 0;
-        while (line < ops.Length && !visited.Contains(line))
+        while (line < ops.Length && !visited[line])
         {
-            visited.Add(line);
+            visited[line] = true;
             switch (ops[line].OpCode)
             {
                 case "nop":
