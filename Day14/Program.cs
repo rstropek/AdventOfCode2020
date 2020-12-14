@@ -63,13 +63,13 @@ public static class Solution
         return memory.Values.Sum();
     }
 
-    internal record Masks(long OrMask, long AndMask, long[] XorMasks);
+    internal record Masks(long OrMask, long[] XorMasks);
 
     private static long CalculatePowerOf2(int powerOf) => 1L << powerOf;
 
     internal static Masks ParseMask2(string mask)
     {
-        long orMask = 0, andMask = 0;
+        long orMask = 0;
         var xorMasks = new long[CalculatePowerOf2(mask.Count(x => x == 'X'))];
         var nextXorIndex = 0;
 
@@ -77,18 +77,14 @@ public static class Solution
         {
             var digit = mask[i];
             orMask <<= 1;
-            andMask <<= 1;
             switch (digit)
             {
                 case '1':
                     orMask |= 1;
-                    andMask |= 1;
                     break;
                 case '0':
-                    andMask |= 1;
                     break;
                 default:
-                    andMask |= 1;
                     var xOrMask = CalculatePowerOf2(mask.Length - 1 - i);
                     if (nextXorIndex > 0)
                     {
@@ -110,7 +106,7 @@ public static class Solution
             }
         }
 
-        return new Masks(orMask, andMask, xorMasks);
+        return new Masks(orMask, xorMasks);
     }
 
     public static long SolvePuzzle2(string[] programLines)
@@ -130,7 +126,7 @@ public static class Solution
             else
             {
                 var lineParsed = memoryRegex.Matches(line);
-                var addressOriginal = (long.Parse(lineParsed[0].Groups[1].Value) | masks!.OrMask) & masks.AndMask;
+                var addressOriginal = long.Parse(lineParsed[0].Groups[1].Value) | masks!.OrMask;
                 var value = long.Parse(lineParsed[0].Groups[2].Value);
                 foreach (var xorMask in masks.XorMasks)
                 {
