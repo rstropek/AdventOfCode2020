@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 var input = await File.ReadAllTextAsync("data.txt");
 
-Console.WriteLine($"Puzzle 1: {Solution.SolvePuzzle1(input)}");
-Console.WriteLine($"Puzzle 2: {Solution.SolvePuzzle2(input)}");
+for (var i = 0; i < 5; i++)
+{
+    var sw = Stopwatch.StartNew();
+    Console.WriteLine($"Puzzle 1: {Solution.SolvePuzzle1(input)}");
+    Console.WriteLine($"Puzzle 2: {Solution.SolvePuzzle2(input)}");
+    Console.WriteLine(sw.Elapsed.TotalMilliseconds);
+    Console.WriteLine();
+}
 
 public static class Solution
 {
@@ -27,33 +34,15 @@ public static class Solution
 
         while (index < nTh)
         {
-            var lastSaidTuple = lastSaidCollection[lastSaid];
-            if (lastSaidTuple.secondLast == -1)
+            var (last, secondLast) = lastSaidCollection[lastSaid];
+            lastSaid = secondLast == -1 ? 0 : last - secondLast;
+            if (lastSaidCollection.TryGetValue(lastSaid, out var nextSaidTuple))
             {
-                if (lastSaidCollection.TryGetValue(0, out var lastSaidZero))
-                {
-                    lastSaidCollection[0] = (index, lastSaidZero.last);
-                }
-                else
-                {
-                    lastSaidCollection[0] = (index, -1);
-                }
-
-                lastSaid = 0;
+                lastSaidCollection[lastSaid] = (index, nextSaidTuple.last);
             }
             else
             {
-                var nextSaid = lastSaidTuple.last - lastSaidTuple.secondLast;
-                if (lastSaidCollection.TryGetValue(nextSaid, out var nextSaidTuple))
-                {
-                    lastSaidCollection[nextSaid] = (index, nextSaidTuple.last);
-                }
-                else
-                {
-                    lastSaidCollection[nextSaid] = (index, -1);
-                }
-
-                lastSaid = nextSaid;
+                lastSaidCollection[lastSaid] = (index, -1);
             }
 
             index++;
