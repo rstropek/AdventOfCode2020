@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 var input = await File.ReadAllTextAsync("data.txt");
 
-for (var i = 0; i < 5; i++)
-{
-    var sw = Stopwatch.StartNew();
-    Console.WriteLine($"Puzzle 1: {Solution.SolvePuzzle1(input)}");
-    Console.WriteLine($"Puzzle 2: {Solution.SolvePuzzle2(input)}");
-    Console.WriteLine(sw.Elapsed.TotalMilliseconds);
-    Console.WriteLine();
-}
+Console.WriteLine($"Puzzle 1: {Solution.SolvePuzzle1(input)}");
+Console.WriteLine($"Puzzle 2: {Solution.SolvePuzzle2(input)}");
 
 public static class Solution
 {
