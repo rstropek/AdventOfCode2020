@@ -114,7 +114,10 @@ public static class Solution
 
     internal static IReadOnlyList<int> BuildSequence(ReadOnlySpan<char> l)
     {
-        var result = new List<int>();
+        var blanks = 0;
+        for (var i = 0; i < l.Length; i++) if (l[i] == ' ') blanks++;
+
+        var result = new List<int>(blanks + 1);
         while (l.Length > 0)
         {
             var nextBlank = l.IndexOf(' ');
@@ -151,7 +154,7 @@ public static class Solution
     private static int ParseRules(string[] lines, bool replaceZero, out Dictionary<int, Rule> rules)
     {
         var i = 0;
-        rules = new Dictionary<int, Rule>();
+        rules = new Dictionary<int, Rule>(lines.TakeWhile(l => l.Length > 0).Count());
         for (; lines[i].Length > 0; i++)
         {
             var l = lines[i].AsSpan();
