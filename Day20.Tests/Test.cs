@@ -116,11 +116,9 @@ namespace AoC.Tests
         };
 
         [Fact]
-        public void Puzzle1() =>
-            Assert.Equal(20899048083289L, Solution.SolvePuzzle1(puzzle1));
+        public void Puzzle1() => Assert.Equal(20899048083289L, Solution.SolvePuzzle1(puzzle1));
 
         [Fact]
-        public void Puzzle2() =>
-            Assert.Equal(0L, Solution.SolvePuzzle2(puzzle1));
+        public void Puzzle2() => Assert.Equal(0L, Solution.SolvePuzzle2(puzzle1));
     }
 }
