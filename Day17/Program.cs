@@ -28,7 +28,6 @@ public static class Solution
             {
                 if (lines[y - startY][x - startX] == '#')
                 {
-                    Debug.WriteLine($"Setting {x}/{y}/6 = true");
                     space[x, y, 6] = true;
                 }
             }
@@ -46,16 +45,16 @@ public static class Solution
                         var xMin = x == 0 ? x : x - 1;
                         var yMin = y == 0 ? y : y - 1;
                         var zMin = z == 0 ? z : z - 1;
-                        var xMax = x == space.GetLength(0) - 1 ? x : x + 1;
-                        var yMax = y == space.GetLength(1) - 1 ? y : y + 1;
-                        var zMax = z == space.GetLength(2) - 1 ? z : z + 1;
+                        var xMax = (x == space.GetLength(0) - 1) ? x : x + 1;
+                        var yMax = (y == space.GetLength(1) - 1) ? y : y + 1;
+                        var zMax = (z == space.GetLength(2) - 1) ? z : z + 1;
 
                         var activeNeighbours = 0;
-                        for (var dx = xMin; dx < xMax; dx++)
+                        for (var dx = xMin; dx <= xMax; dx++)
                         {
-                            for (var dy = yMin; dy < yMax; dy++)
+                            for (var dy = yMin; dy <= yMax; dy++)
                             {
-                                for (var dz = zMin; dz < zMax; dz++)
+                                for (var dz = zMin; dz <= zMax; dz++)
                                 {
                                     if ((dx != x || dy != y || dz != z) && space[dx, dy, dz])
                                     {
@@ -64,8 +63,6 @@ public static class Solution
                                 }
                             }
                         }
-
-                        if (activeNeighbours > 1) Debug.WriteLine($"{x}/{y}/{y}: {activeNeighbours}");
 
                         if (space[x, y, z] && activeNeighbours is not 2 and not 3) newSpace[x, y, z] = false;
                         else if (!space[x, y, z] && activeNeighbours == 3) newSpace[x, y, z] = true;
@@ -93,6 +90,86 @@ public static class Solution
 
     public static int SolvePuzzle2(string[] lines)
     {
-        throw new NotImplementedException();
+        var sideLength = lines.Length;
+        var space = new bool[12 + sideLength, 12 + sideLength, 13, 13];
+
+        var startY = (space.GetLength(1) - lines.Length) / 2;
+        for (var y = startY; y < startY + lines.Length; y++)
+        {
+            var startX = (space.GetLength(0) - lines[y - startY].Length) / 2;
+            for (var x = startX; x < startX + lines[y - startY].Length; x++)
+            {
+                if (lines[y - startY][x - startX] == '#')
+                {
+                    Debug.WriteLine($"Setting {x}/{y}/6 = true");
+                    space[x, y, 6, 6] = true;
+                }
+            }
+        }
+
+        for (var cycles = 0; cycles < 6; cycles++)
+        {
+            var newSpace = (bool[,,,])space.Clone();
+            for (var x = 0; x < space.GetLength(0); x++)
+            {
+                for (var y = 0; y < space.GetLength(1); y++)
+                {
+                    for (var z = 0; z < space.GetLength(2); z++)
+                    {
+                        for (var w = 0; w < space.GetLength(3); w++)
+                        {
+                            var xMin = x == 0 ? x : x - 1;
+                            var yMin = y == 0 ? y : y - 1;
+                            var zMin = z == 0 ? z : z - 1;
+                            var wMin = w == 0 ? w : w - 1;
+                            var xMax = (x == space.GetLength(0) - 1) ? x : x + 1;
+                            var yMax = (y == space.GetLength(1) - 1) ? y : y + 1;
+                            var zMax = (z == space.GetLength(2) - 1) ? z : z + 1;
+                            var wMax = (w == space.GetLength(3) - 1) ? w : w + 1;
+
+                            var activeNeighbours = 0;
+                            for (var dx = xMin; dx <= xMax; dx++)
+                            {
+                                for (var dy = yMin; dy <= yMax; dy++)
+                                {
+                                    for (var dz = zMin; dz <= zMax; dz++)
+                                    {
+                                        for (var dw = wMin; dw <= wMax; dw++)
+                                        {
+                                            if ((dx != x || dy != y || dz != z || dw != w) && space[dx, dy, dz, dw])
+                                            {
+                                                activeNeighbours++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (space[x, y, z, w] && activeNeighbours is not 2 and not 3) newSpace[x, y, z, w] = false;
+                            else if (!space[x, y, z, w] && activeNeighbours == 3) newSpace[x, y, z, w] = true;
+                        }
+                    }
+                }
+            }
+
+            space = newSpace;
+        }
+
+        var activeCount = 0;
+        for (var x = 0; x < space.GetLength(0); x++)
+        {
+            for (var y = 0; y < space.GetLength(1); y++)
+            {
+                for (var z = 0; z < space.GetLength(2); z++)
+                {
+                    for (var w = 0; w < space.GetLength(3); w++)
+                    {
+                        if (space[x, y, z, w]) activeCount++;
+                    }
+                }
+            }
+        }
+
+        return activeCount;
     }
 }
