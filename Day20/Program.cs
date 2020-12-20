@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -22,14 +24,23 @@ public static class Solution
 
         sides.Add(lines[1]);
         sides.Add(lines[^1]);
-        sides.Add(string.Join("", lines[1..].Select(l => l[0])));
-        sides.Add(string.Join("", lines[1..].Select(l => l[^1])));
+        sides.Add(string.Join(string.Empty, lines[1..].Select(l => l[0])));
+        sides.Add(string.Join(string.Empty, lines[1..].Select(l => l[^1])));
         sides.AddRange(sides.Select(s => new string(s.Reverse().ToArray())).ToArray());
 
         return result;
     }
 
-    public static long SolvePuzzle1(string[] lines)
+    private static IEnumerable<Tile> FindCornerTiles(this IEnumerable<Tile> tiles) =>
+        tiles.Select(t1 => new
+        {
+            Tile = t1,
+            MatchingTiles = tiles.Count(t2 => t1.ID != t2.ID && t1.Sides.Count(s1 => t2.Sides.Any(s2 => s1 == s2)) == 2)
+        })
+        .Where(t => t.MatchingTiles == 2)
+        .Select(t => t.Tile);
+
+    private static List<Tile> ParseTiles(string[] lines)
     {
         var tiles = new List<Tile>();
         for (var index = 0; index < lines.Length; index += 12)
@@ -38,17 +49,43 @@ public static class Solution
             tiles.Add(tile);
         }
 
-        return tiles.Select(t1 => new
-        {
-            Tile = t1,
-            MatchingTiles = tiles.Count(t2 => t1.ID != t2.ID && t1.Sides.Count(s1 => t2.Sides.Any(s2 => s1 == s2)) == 2)
-        })
-        .Where(t => t.MatchingTiles == 2)
-        .Aggregate(1L, (acc, item) => acc *= item.Tile.ID);
+        return tiles;
     }
+
+    public static long SolvePuzzle1(string[] lines) =>
+        ParseTiles(lines).FindCornerTiles().Aggregate(1L, (acc, item) => acc *= item.ID);
+
+    static IEnumerable<Tile> GetPossibleNeighbours(this IEnumerable<Tile> tiles, IEnumerable<int> positionedTiles, int ID) =>
+        tiles.Where(nt => nt.ID != ID && !positionedTiles.Any(pt => nt.ID == pt) 
+            && nt.Sides.Any(nts => tiles.First(t => t.ID == ID).Sides.Any(luct => luct == nts)));
 
     public static int SolvePuzzle2(string[] lines)
     {
+        var tiles = ParseTiles(lines);
+        var sideLength = (int)Math.Sqrt(tiles.Count);
+        var tileIDs = new int[tiles.Count];
+
+        var leftUpperCornerTile = tiles.FindCornerTiles().First();
+        tileIDs[0] = leftUpperCornerTile.ID;
+        var leftUpperNeighbours = tiles.GetPossibleNeighbours(tileIDs, leftUpperCornerTile.ID);
+        tileIDs[1] = leftUpperNeighbours.First().ID;
+        tileIDs[sideLength] = leftUpperNeighbours.Last().ID;
+
+        for (var ix = 1; ix < tiles.Count - sideLength; ix++)
+        {
+            var possibleNeighbours = tiles.GetPossibleNeighbours(tileIDs, tileIDs[ix]).ToArray();
+            if (possibleNeighbours.Length > 1)
+            {
+                var below = possibleNeighbours.Intersect(tiles.GetPossibleNeighbours(tileIDs, tileIDs[ix + sideLength - 1]));
+                tileIDs[ix + sideLength] = below.First().ID;
+                tileIDs[ix + 1] = possibleNeighbours.First(n => n.ID != tileIDs[ix + sideLength]).ID;
+            }
+            else tileIDs[ix + sideLength] = possibleNeighbours.First().ID;
+        }
+
+
+
+
         throw new NotImplementedException();
     }
 }
