@@ -48,29 +48,21 @@ public static class Solution
             {
                 if (possible.TryGetValue(all, out var ingredients))
                 {
-                    foreach (var ing in prod.Ingredients) ingredients.Add(ing);
+                    possible[all] = possible[all].Intersect(prod.Ingredients).ToHashSet();
                 }
                 else possible[all] = prod.Ingredients.ToHashSet();
             }
         }
 
-        foreach (var all in possible.Keys)
+        for (var foundItemToRemove = true; foundItemToRemove;)
         {
-            foreach (var p in products.Where(p => p.Allergenes.Any(a => a == all)))
-            {
-                possible[all] = possible[all].Intersect(p.Ingredients).ToHashSet();
-            }
-        }
-
-        for (var found = true; found;)
-        {
-            found = false;
+            foundItemToRemove = false;
             foreach (var all in possible.Where(kvp => kvp.Value.Count == 1))
             {
                 var allToRemove = all.Value.First();
                 foreach (var allToFix in possible.Where(kvp => kvp.Value.Count > 1))
                 {
-                    found = true;
+                    foundItemToRemove = true;
                     allToFix.Value.Remove(allToRemove);
                 }
             }
