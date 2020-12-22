@@ -180,5 +180,8 @@ namespace AoC.Tests
             var trimmed = source.Trim();
             Assert.Empty(trimmed.Lines.Where(t => t.Trim().Length > 0));
         }
+
+        //[Fact]
+        //public void 
     }
 }
