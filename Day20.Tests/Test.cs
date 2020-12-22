@@ -1,3 +1,4 @@
+using System.Linq;
 using Xunit;
 
 namespace AoC.Tests
@@ -120,5 +121,64 @@ namespace AoC.Tests
 
         [Fact]
         public void Puzzle2() => Assert.Equal(0L, Solution.SolvePuzzle2(puzzle1));
+
+        [Fact]
+        public void RotateClockwise()
+        {
+            var source = new Tile(0, new[] {
+                "*   ",
+                " * *",
+                " ** ",
+                "*  *",
+            });
+            var expected = new Tile(0, new [] {
+                "*  *",
+                " ** ",
+                " *  ",
+                "* * ",
+            });
+            var rotated = source.RotateClockwise();
+            Assert.True(rotated.Lines.SequenceEqual(expected.Lines));
+
+            rotated = rotated.RotateClockwise();
+            rotated = rotated.RotateClockwise();
+            rotated = rotated.RotateClockwise();
+            Assert.True(rotated.Lines.SequenceEqual(source.Lines));
+        }
+
+        [Fact]
+        public void Flip()
+        {
+            var source = new Tile(0, new[] {
+                "*   ",
+                " * *",
+                " ** ",
+                "*  *",
+            });
+            var expected = new Tile(0, new[] {
+                "   *",
+                "* * ",
+                " ** ",
+                "*  *",
+            });
+            var rotated = source.Flip();
+            Assert.True(rotated.Lines.SequenceEqual(expected.Lines));
+
+            rotated = rotated.Flip();
+            Assert.True(rotated.Lines.SequenceEqual(source.Lines));
+        }
+
+        [Fact]
+        public void Trim()
+        {
+            var source = new Tile(0, new[] {
+                "****",
+                "*  *",
+                "*  *",
+                "****",
+            });
+            var trimmed = source.Trim();
+            Assert.Empty(trimmed.Lines.Where(t => t.Trim().Length > 0));
+        }
     }
 }
