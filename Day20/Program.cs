@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("Day20.Tests")]
 
@@ -108,21 +109,45 @@ public static class Solution
     internal static IEnumerable<string> Stitch(Tile[] tiles)
     {
         var tilesSideLength = (int)Math.Sqrt(tiles.Length);
+        var tileSize = tiles[0].Lines[0].Length - 2;
 
-        for (var i = 0; i < tilesSideLength; i++)
+        for (var row = 0; row < tilesSideLength; row++)
         {
-            for (var k = 0; k < tiles[0].Lines[0].Length - 2; k++)
+            for (var lineInRow = 0; lineInRow < tileSize; lineInRow++)
             {
-                yield return string.Create((tiles[0].Lines.Length - 2) * tilesSideLength, tiles, (buf, t) =>
+                yield return string.Create(tileSize * tilesSideLength, tiles, (buf, t) =>
                 {
-                    for (var j = 0; j < tilesSideLength; j++)
+                    for (var column = 0; column < tilesSideLength; column++)
                     {
-                        tiles[i].Lines[1..^1][k].AsSpan()[1..^1].CopyTo(buf);
-                        buf = buf[(tiles[0].Lines.Length - 2)..];
+                        tiles[row * tilesSideLength + column].Lines[1..^1][lineInRow].AsSpan()[1..^1].CopyTo(buf);
+                        buf = buf[tileSize..];
                     }
                 });
             }
         }
+    }
+
+    public static int CountMonsters(string[] lines)
+    {
+        var monsterLine1 = new Regex(@"[\.#]{18}#[\.#]");
+        var monsterLine2 = new Regex(@"#[\.#]{4}##[\.#]{4}##[\.#]{4}###");
+        var monsterLine3 = new Regex(@"[\.#]#[\.#]{2}#[\.#]{2}#[\.#]{2}#[\.#]{2}#[\.#]{2}#[\.#]{3}");
+
+        var count = 0;
+        for(var i = 0; i < lines.Length - 2; i++)
+        {
+            for (var j = 0; j < lines[i].Length - 20; j++)
+            {
+                if (monsterLine1.IsMatch(lines[i][j..(j + 20)]) 
+                    && monsterLine2.IsMatch(lines[i + 1][j..(j + 20)])
+                    && monsterLine3.IsMatch(lines[i + 2][j..(j + 20)]))
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
     public static int SolvePuzzle2(string[] lines)
@@ -175,10 +200,24 @@ public static class Solution
             var anchorSide = anchorTile.Sides.Skip(compareTop ? 1 : 3).First();
 
             Debug.Assert(TryFlipUntilFit(anchorTile, arrangedTiles[ix],
-                compareTop ? Position.Bottom : Position.Right, out var result));
-            arrangedTiles[ix] = result;
+                compareTop ? Position.Bottom : Position.Right, out var flipResult));
+            arrangedTiles[ix] = flipResult;
         }
 
-        throw new NotImplementedException();
+        var result = Stitch(arrangedTiles).ToArray();
+
+        int monsterCount = 0;
+        for (var variant = 0; variant < 8; variant++)
+        {
+            monsterCount = CountMonsters(result);  
+            if (monsterCount > 0) break;
+
+            var tile = new Tile(0, result);
+            tile = tile.RotateClockwise();
+            if (variant == 3) tile = tile.Flip();
+            result = tile.Lines;
+        }
+
+        return result.Select(l => l.Count(c => c == '#')).Sum() - monsterCount * 15;
     }
 }

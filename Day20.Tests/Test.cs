@@ -120,7 +120,7 @@ namespace AoC.Tests
         public void Puzzle1() => Assert.Equal(20899048083289L, Solution.SolvePuzzle1(puzzle1));
 
         [Fact]
-        public void Puzzle2() => Assert.Equal(0L, Solution.SolvePuzzle2(puzzle1));
+        public void Puzzle2() => Assert.Equal(273, Solution.SolvePuzzle2(puzzle1));
 
         [Fact]
         public void RotateClockwise()
@@ -131,7 +131,7 @@ namespace AoC.Tests
                 " ** ",
                 "*  *",
             });
-            var expected = new Tile(0, new [] {
+            var expected = new Tile(0, new[] {
                 "*  *",
                 " ** ",
                 " *  ",
@@ -181,7 +181,24 @@ namespace AoC.Tests
             Assert.Empty(trimmed.Lines.Where(t => t.Trim().Length > 0));
         }
 
-        //[Fact]
-        //public void 
+        [Fact]
+        public void Stitch()
+        {
+            var tiles = new[] {
+                new Tile(0, new[] { "#.#.", ".#.#", "#.#.", ".#.#" }),
+                new Tile(0, new[] { ".#.#", "#.#.", ".#.#", "#.#." }),
+                new Tile(0, new[] { "#.#.", ".#.#", "#.#.", ".#.#" }),
+                new Tile(0, new[] { ".#.#", "#.#.", ".#.#", "#.#." }),
+            };
+
+            var stitched = Solution.Stitch(tiles).ToArray();
+            Assert.True(stitched.SequenceEqual(new[]
+            {
+                "#..#",
+                ".##.",
+                "#..#",
+                ".##.",
+            }));
+        }
     }
 }
